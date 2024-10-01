@@ -1,6 +1,8 @@
 package main
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+)
 
 func parseXML(xmlString string) (XMLNode, error) {
 	var node XMLNode

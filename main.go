@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"io"
+	"log"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -93,7 +92,6 @@ func generateJSONSchema(schema JSONSchemaProperty) (string, error) {
 	if len(schema.Properties) > 0 {
 		jsonSchema["properties"] = schema.Properties
 	}
-
 	jsonBytes, err := json.MarshalIndent(jsonSchema, "", "  ")
 	if err != nil {
 		return "", err
@@ -109,20 +107,13 @@ func main() {
 			continue
 		}
 		if strings.HasSuffix(file.Name(), ".xml") {
-			f, err := os.Open(filepath.Join(".", file.Name()))
-			var buf strings.Builder
-			_, err = io.Copy(&buf, f)
+			contents := readFile(RealFileSystem{}, file.Name())
+			node, err := parseXML(contents)
 			if err != nil {
-				fmt.Println(err)
+				log.Fatal("Error when parsing XML")
 			}
-			s := buf.String()
-			fmt.Println("Error reading file:", file.Name(), err)
-			node, err := parseXML(s)
-			if err != nil {
-				fmt.Println("Error parsing XML:", err)
-				return
-			}
-			schemas = append(schemas, extractSchema(node))
+			schema := extractSchema(node)
+			schemas = append(schemas, schema)
 		}
 	}
 	mergedSchema := mergeSchemas(schemas)
