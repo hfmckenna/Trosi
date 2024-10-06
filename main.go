@@ -17,32 +17,15 @@ type XMLNode struct {
 
 type JSONSchemaType string
 
-const (
-	TypeString JSONSchemaType = "string"
-	TypeNumber JSONSchemaType = "number"
-	TypeObject JSONSchemaType = "object"
-)
-
 type JSONSchemaProperty struct {
 	Type       JSONSchemaType                `json:"type"`
 	Properties map[string]JSONSchemaProperty `json:"properties,omitempty"`
-}
-
-func inferType(value string) JSONSchemaType {
-	if strings.TrimSpace(value) == "" {
-		return TypeString
-	}
-	if _, err := json.Number(value).Float64(); err == nil {
-		return TypeNumber
-	}
-	return TypeString
 }
 
 func extractSchema(node XMLNode) JSONSchemaProperty {
 	schema := JSONSchemaProperty{
 		Properties: make(map[string]JSONSchemaProperty),
 	}
-
 	if len(node.Nodes) == 0 {
 		schema.Type = inferType(node.Content)
 	} else {
@@ -51,7 +34,6 @@ func extractSchema(node XMLNode) JSONSchemaProperty {
 			schema.Properties[child.XMLName.Local] = extractSchema(child)
 		}
 	}
-
 	return schema
 }
 
@@ -60,7 +42,6 @@ func mergeSchemas(schemas []JSONSchemaProperty) JSONSchemaProperty {
 		Type:       TypeObject,
 		Properties: make(map[string]JSONSchemaProperty),
 	}
-
 	for _, schema := range schemas {
 		for name, prop := range schema.Properties {
 			if existing, ok := merged.Properties[name]; ok {
@@ -70,7 +51,6 @@ func mergeSchemas(schemas []JSONSchemaProperty) JSONSchemaProperty {
 			}
 		}
 	}
-
 	return merged
 }
 
