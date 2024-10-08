@@ -1,41 +1,11 @@
 package main
 
 import (
-	"encoding/json"
-	"encoding/xml"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 )
-
-type XMLNode struct {
-	XMLName xml.Name
-	Content string    `xml:",chardata"`
-	Nodes   []XMLNode `xml:",any"`
-}
-
-type JSONSchemaType string
-
-type JSONSchemaProperty struct {
-	Type       JSONSchemaType                `json:"type"`
-	Properties map[string]JSONSchemaProperty `json:"properties,omitempty"`
-}
-
-func extractSchema(node XMLNode) JSONSchemaProperty {
-	schema := JSONSchemaProperty{
-		Properties: make(map[string]JSONSchemaProperty),
-	}
-	if len(node.Nodes) == 0 {
-		schema.Type = inferType(node.Content)
-	} else {
-		schema.Type = TypeObject
-		for _, child := range node.Nodes {
-			schema.Properties[child.XMLName.Local] = extractSchema(child)
-		}
-	}
-	return schema
-}
 
 func mergeSchemas(schemas []JSONSchemaProperty) JSONSchemaProperty {
 	merged := JSONSchemaProperty{
@@ -64,21 +34,6 @@ func mergeProp(p1, p2 JSONSchemaProperty) JSONSchemaProperty {
 	return p1 // If same type and not object, just return one of them
 }
 
-func generateJSONSchema(schema JSONSchemaProperty) (string, error) {
-	jsonSchema := map[string]interface{}{
-		"$schema": "http://json-schema.org/draft-07/schema#",
-		"type":    schema.Type,
-	}
-	if len(schema.Properties) > 0 {
-		jsonSchema["properties"] = schema.Properties
-	}
-	jsonBytes, err := json.MarshalIndent(jsonSchema, "", "  ")
-	if err != nil {
-		return "", err
-	}
-	return string(jsonBytes), nil
-}
-
 func main() {
 	files, err := os.ReadDir(".")
 	var schemas []JSONSchemaProperty
@@ -92,7 +47,7 @@ func main() {
 			if err != nil {
 				log.Fatal("Error when parsing XML")
 			}
-			schema := extractSchema(node)
+			schema := toSchemaProperty(node)
 			schemas = append(schemas, schema)
 		}
 	}

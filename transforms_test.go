@@ -50,3 +50,78 @@ func TestParseXML(t *testing.T) {
 		})
 	}
 }
+
+func TestGenerateJSONSchema(t *testing.T) {
+	testCases := []struct {
+		name     string
+		input    JSONSchemaProperty
+		expected string
+	}{
+		{
+			name:     "number",
+			input:    JSONSchemaProperty{Type: TypeNumber},
+			expected: readFile(RealFileSystem{}, "test/number.json"),
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, _ := generateJSONSchema(tc.input)
+			if !reflect.DeepEqual(result, tc.expected) {
+				t.Errorf("generateJSONSchema() = %v, want %v", result, tc.expected)
+			}
+		})
+	}
+}
+
+func TestToSchemaProperty(t *testing.T) {
+	testCases := []struct {
+		name     string
+		input    XMLNode
+		expected JSONSchemaProperty
+	}{
+		{
+			name: "string",
+			input: XMLNode{
+				XMLName: xml.Name{Local: "root"},
+				Content: "test",
+				Nodes:   nil,
+			},
+			expected: JSONSchemaProperty{
+				Type:       "string",
+				Properties: nil,
+			},
+		},
+		{
+			name: "number",
+			input: XMLNode{
+				XMLName: xml.Name{Local: "root"},
+				Content: "1",
+				Nodes:   nil,
+			},
+			expected: JSONSchemaProperty{
+				Type:       "number",
+				Properties: nil,
+			},
+		},
+		{
+			name: "object",
+			input: XMLNode{
+				XMLName: xml.Name{Local: "root"},
+				Content: "",
+				Nodes:   []XMLNode{{XMLName: xml.Name{Local: "child"}, Content: "value"}},
+			},
+			expected: JSONSchemaProperty{
+				Type:       "object",
+				Properties: nil,
+			},
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := toSchemaProperty(tc.input)
+			if !reflect.DeepEqual(result.Type, tc.expected.Type) {
+				t.Errorf("toSchemaProperty() = %v, want %v", result, tc.expected)
+			}
+		})
+	}
+}
