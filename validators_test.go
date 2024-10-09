@@ -11,7 +11,7 @@ func TestInferType(t *testing.T) {
 		{
 			name:   "empty",
 			input:  " ",
-			expect: TypeString,
+			expect: TypeNull,
 		},
 		{
 			name:   "string",
@@ -21,7 +21,7 @@ func TestInferType(t *testing.T) {
 		{
 			name:   "number",
 			input:  "1",
-			expect: TypeNumber,
+			expect: TypeInteger,
 		},
 		{
 			name:   "float",

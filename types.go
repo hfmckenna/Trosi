@@ -14,3 +14,12 @@ type JSONSchemaProperty struct {
 	Type       JSONSchemaType                `json:"type"`
 	Properties map[string]JSONSchemaProperty `json:"properties,omitempty"`
 }
+
+const (
+	TypeString  JSONSchemaType = "string"
+	TypeNumber  JSONSchemaType = "number"
+	TypeInteger JSONSchemaType = "integer"
+	TypeBoolean JSONSchemaType = "boolean"
+	TypeNull    JSONSchemaType = "null"
+	TypeObject  JSONSchemaType = "object"
+)

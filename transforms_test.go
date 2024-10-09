@@ -99,7 +99,7 @@ func TestToSchemaProperty(t *testing.T) {
 				Nodes:   nil,
 			},
 			expected: JSONSchemaProperty{
-				Type:       "number",
+				Type:       "integer",
 				Properties: nil,
 			},
 		},

@@ -5,20 +5,18 @@ import (
 	"strings"
 )
 
-const (
-	TypeString JSONSchemaType = "string"
-	TypeNumber JSONSchemaType = "number"
-	TypeObject JSONSchemaType = "object"
-)
-
 func inferType(value string) JSONSchemaType {
-	if strings.TrimSpace(value) == "" {
-		return TypeString
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return TypeNull
 	}
-	if _, err := json.Number(value).Int64(); err == nil {
-		return TypeNumber
+	if trimmed == "true" || trimmed == "false" {
+		return TypeBoolean
 	}
-	if _, err := json.Number(value).Float64(); err == nil {
+	if _, err := json.Number(trimmed).Int64(); err == nil {
+		return TypeInteger
+	}
+	if _, err := json.Number(trimmed).Float64(); err == nil {
 		return TypeNumber
 	}
 	return TypeString
