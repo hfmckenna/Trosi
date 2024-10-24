@@ -108,18 +108,20 @@ func TestToSchemaProperty(t *testing.T) {
 			input: XMLNode{
 				XMLName: xml.Name{Local: "root"},
 				Content: "",
-				Nodes:   []XMLNode{{XMLName: xml.Name{Local: "child"}, Content: "value"}},
+				Nodes:   []XMLNode{{XMLName: xml.Name{Local: "child"}, Content: "value"}, {XMLName: xml.Name{Local: "child"}, Content: "other"}},
 			},
 			expected: JSONSchemaProperty{
-				Type:       "object",
-				Properties: nil,
+				Type: "object",
+				Properties: map[string]JSONSchemaProperty{
+					"child": {Type: TypeString},
+				},
 			},
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			result := toSchemaProperty(tc.input)
-			if !reflect.DeepEqual(result.Type, tc.expected.Type) {
+			if tc.expected.Type != result.Type {
 				t.Errorf("toSchemaProperty() = %v, want %v", result, tc.expected)
 			}
 		})
