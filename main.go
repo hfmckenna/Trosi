@@ -20,7 +20,7 @@ func main() {
 			if err != nil {
 				log.Fatal("Error when parsing XML")
 			}
-			schema := toSchemaProperty(node)
+			schema := toSchemaProperty(node, "#")
 			schemas = append(schemas, schema)
 		}
 	}
